@@ -35,4 +35,4 @@ GOOGLE_GENERATIVE_AI_API_KEY=
 npm run dev
 ```
 
-Built by [Sanjai Balajee](https://twitter.com/sanjaibalajee)
+Built by [Sanjai Balajee](https://x.com/idynamightt)
