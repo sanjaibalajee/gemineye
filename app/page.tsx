@@ -1,101 +1,188 @@
-import Image from "next/image";
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { FileAudio, FileImage, FileVideo, MessageSquare, Zap, Github } from "lucide-react"
+import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
+import Link from 'next/link'
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+export default async function Home() {
+  const { userId } = await auth();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+
+  if (userId) {
+      redirect("/chat");
+  }
+  else{
+    return (
+      <div className="flex flex-col min-h-screen">
+        {/* Hero Section */}
+        <section className="relative flex flex-col items-center justify-center space-y-4 py-12 px-4 text-center md:py-24 lg:py-32 border-b border-border/50">
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.04)_0%,rgba(51, 51, 51)_80%)] dark:bg-[linear-gradient(to_bottom,rgba(0,0,0,0.04)_0%,rgba(0,0,0,0)_100%)]"></div>
+          <div className="space-y-4">
+            <div className="inline-block rounded-full px-3 py-1 text-xs sm:text-sm border border-border/50 bg-background">
+              Powered by Gemini AI
+            </div>
+            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
+              Multi-Modal AI Chatbot
+            </h1>
+            <p className="mx-auto max-w-[700px] text-sm text-muted-foreground sm:text-base md:text-lg">
+              Analyze videos, images, and audio with our advanced AI chatbot. Powered by Gemini, it understands and
+              interprets multiple media types.
+            </p>
+          </div>
+          <div className="flex flex-col gap-4 sm:flex-row">
+          <Button size="lg" className="h-10 px-6 sm:h-11 sm:px-8">
+            <Link href="/signup">Get Started Now</Link>
+          </Button>
+          <Button size="lg" variant="outline" className="h-10 px-6 sm:h-11 sm:px-8">
+            <Link href="/login">Go to Chat</Link>
+          </Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+        </section>
+  
+        {/* Features Section */}
+        <section id="features" className="container space-y-6 py-12 md:py-24">
+          <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+            <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl">Features</h2>
+            <p className="max-w-[85%] text-sm text-muted-foreground sm:text-base">
+              Analyze multiple media types with our AI-powered chatbot
+            </p>
+          </div>
+          <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
+            {[
+              {
+                icon: FileVideo,
+                title: "Video Analysis",
+                description: "Extract insights and information from video content",
+              },
+              {
+                icon: FileImage,
+                title: "Image Recognition",
+                description: "Identify objects, scenes, and text in images",
+              },
+              {
+                icon: FileAudio,
+                title: "Audio Processing",
+                description: "Transcribe and analyze audio files and speech",
+              },
+            ].map((feature, index) => (
+              <Card
+                key={index}
+                className="group relative overflow-hidden border border-border/50 bg-background p-6 transition-all hover:border-foreground/20"
+              >
+                <div className="flex flex-col items-center space-y-4">
+                  <feature.icon className="h-12 w-12" />
+                  <div className="space-y-2 text-center">
+                    <h3 className="font-bold">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </section>
+  
+        {/* How It Works Section */}
+        <section id="how-it-works" className="border-t border-border/50">
+          <div className="container space-y-6 py-12 md:py-24">
+            <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+              <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl">How It Works</h2>
+              <p className="max-w-[85%] text-sm text-muted-foreground sm:text-base">
+                Seamless analysis of multiple media types in one conversation
+              </p>
+            </div>
+            <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
+              {[
+                {
+                  icon: MessageSquare,
+                  title: "Start a Conversation",
+                  description: "Begin chatting with our AI about any topic",
+                },
+                {
+                  icon: Zap,
+                  title: "Upload Media",
+                  description: "Share videos, images, or audio files for analysis",
+                },
+                {
+                  icon: Github,
+                  title: "Get Insights",
+                  description: "Receive detailed analysis and answers about your media",
+                },
+              ].map((step, index) => (
+                <Card
+                  key={index}
+                  className="group relative overflow-hidden border border-border/50 bg-background p-6 transition-all hover:border-foreground/20"
+                >
+                  <div className="flex flex-col items-center space-y-4">
+                    <step.icon className="h-12 w-12" />
+                    <div className="space-y-2 text-center">
+                      <h3 className="font-bold">{step.title}</h3>
+                      <p className="text-sm text-muted-foreground">{step.description}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+  
+        {/* Why Section */}
+        <section className="border-t border-border/50">
+          <div className="container space-y-6 py-12 md:py-24">
+            <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+              <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl">Why Choose Our Chatbot?</h2>
+              <p className="max-w-[85%] text-sm text-muted-foreground sm:text-base">
+                Advanced AI-powered analysis for all your media needs
+              </p>
+            </div>
+            <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem]">
+              {[
+                {
+                  title: "Multi-Modal Analysis",
+                  description:
+                    "Our chatbot can understand and analyze various types of media, including video, images, and audio, all in one conversation.",
+                },
+                {
+                  title: "Powered by Gemini",
+                  description:
+                    "Leveraging Google's advanced Gemini AI model for state-of-the-art natural language processing and media analysis.",
+                },
+              ].map((feature, index) => (
+                <Card
+                  key={index}
+                  className="group relative overflow-hidden border border-border/50 bg-background p-6 transition-all hover:border-foreground/20"
+                >
+                  <div className="space-y-2">
+                    <h3 className="font-bold">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+  
+        {/* CTA Section */}
+        <section className="border-t border-border/50">
+          <div className="container space-y-6 py-12 md:py-24">
+            <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+              <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl">
+                Ready to Analyze Your Media?
+              </h2>
+              <p className="max-w-[85%] text-sm text-muted-foreground sm:text-base">
+                Start a conversation with our AI chatbot and unlock insights from your videos, images, and audio
+              </p>
+              <Button size="lg" className="h-10 px-6 sm:h-11 sm:px-8">
+                Launch Chatbot
+              </Button>
+            </div>
+          </div>
+        </section>
+      </div>
+    )
+
+  }
+
+
+  
 }
