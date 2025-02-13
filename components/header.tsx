@@ -13,39 +13,34 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
+      <div className="container flex h-14 items-center px-8">
         <Link href="/" className="flex items-center space-x-2">
           <MessageSquare className="h-6 w-6" />
           <span className="font-bold">GeminEye</span>
         </Link>
         <div className="flex flex-1 items-center justify-end space-x-4">
-          {!isSignedIn && (
-            <nav className="hidden sm:flex items-center space-x-6 text-sm">
-              <Link href="#features" className="transition hover:text-foreground/80">
-                Features
-              </Link>
-              <Link href="#how-it-works" className="transition hover:text-foreground/80">
-                How It Works
-              </Link>
-              <Link href="#docs" className="transition hover:text-foreground/80">
-                Docs
-              </Link>
-            </nav>
-          )}
+          <nav className="hidden sm:flex items-center space-x-8 text-sm">
+            <Link href="#features" className="transition hover:text-foreground/80">
+              Features
+            </Link>
+            <Link href="#how-it-works" className="transition hover:text-foreground/80">
+              How It Works
+            </Link>
+            <Link href="#docs" className="transition hover:text-foreground/80">
+              Docs
+            </Link>
+            <Link
+              href="https://github.com/sanjaibalajee/gemineye"
+              target="_blank"
+              rel="noreferrer"
+              className="transition hover:text-foreground/80 flex items-center space-x-2"
+            >
+              <Github className="h-4 w-4" />
+              <span>View Repo</span>
+            </Link>
+          </nav>
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            {!isSignedIn && (
-              <Link href="https://github.com/geminichat/repo" target="_blank" rel="noreferrer">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="hidden sm:flex border-border/50 hover:border-foreground/20"
-                >
-                  <Github className="h-4 w-4" />
-                  <span className="sr-only">GitHub</span>
-                </Button>
-              </Link>
-            )}
             {isSignedIn ? (
               <UserButton afterSignOutUrl="/" />
             ) : (
@@ -75,17 +70,18 @@ export function Header() {
             <Link href="#docs" className="transition hover:text-foreground/80">
               Docs
             </Link>
+            <Link
+              href="https://github.com/sanjaibalajee/gemineye"
+              target="_blank"
+              rel="noreferrer"
+              className="transition hover:text-foreground/80 flex items-center space-x-2"
+            >
+              <Github className="h-4 w-4" />
+              <span>View Repo</span>
+            </Link>
             <SignInButton mode="modal">
               <Button className="w-full">Try It Now</Button>
             </SignInButton>
-            <Link
-              href="https://github.com/geminichat/repo"
-              target="_blank"
-              rel="noreferrer"
-              className="transition hover:text-foreground/80"
-            >
-              GitHub
-            </Link>
           </nav>
         </div>
       )}
