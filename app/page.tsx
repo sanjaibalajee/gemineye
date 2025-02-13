@@ -172,9 +172,11 @@ export default async function Home() {
               <p className="max-w-[85%] text-sm text-muted-foreground sm:text-base">
                 Start a conversation with our AI chatbot and unlock insights from your videos, images, and audio
               </p>
-              <Button size="lg" className="h-10 px-6 sm:h-11 sm:px-8">
+              <Button asChild size="lg" className="h-10 px-6 sm:h-11 sm:px-8">
+              <Link href="/signup">
                 Launch Chatbot
-              </Button>
+              </Link>
+            </Button>
             </div>
           </div>
         </section>
