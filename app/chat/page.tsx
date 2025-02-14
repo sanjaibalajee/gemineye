@@ -5,10 +5,18 @@ import { useEffect, useRef, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { FileImage, FileAudio, FileVideo, Send, Trash2, X } from "lucide-react"
+import { FileImage, FileAudio, FileVideo, Send, Trash2, X, Mic } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from 'next/image'
-import { Attachment } from '@ai-sdk/ui-utils';
+import { Attachment } from '@ai-sdk/ui-utils'
+import { createClient, LiveClient, LiveTranscriptionEvents } from "@deepgram/sdk"
+
+enum MicrophoneState {
+  NotSetup = "not_setup",
+  Ready = "ready",
+  Recording = "recording",
+  Error = "error",
+}
 
 export default function ChatPage() {
   const { messages, input, setInput, isLoading, reload, handleSubmit: handleChatSubmit } = useChat({
@@ -21,11 +29,140 @@ export default function ChatPage() {
     ]
   })
 
+  // Speech to text states
+  const [micState, setMicState] = useState<MicrophoneState>(MicrophoneState.NotSetup)
+  const [connection, setConnection] = useState<LiveClient | null>(null)
+  const [microphone, setMicrophone] = useState<MediaRecorder | null>(null)
+  const mediaStream = useRef<MediaStream | null>(null)
+
+  // Existing states
   const [files, setFiles] = useState<FileList | undefined>(undefined)
   const [uploadType, setUploadType] = useState<'image' | 'audio' | 'video' | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const getApiKey = async (): Promise<string> => {
+    const response = await fetch("/api/speech", { cache: "no-store" })
+    const result = await response.json()
+    return result.key
+  }
+
+  const setupMicrophone = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          noiseSuppression: true,
+          echoCancellation: true,
+        },
+      })
+      
+      mediaStream.current = stream
+      const mic = new MediaRecorder(stream)
+      setMicrophone(mic)
+      setMicState(MicrophoneState.Ready)
+    } catch (err) {
+      console.error("Microphone setup error:", err)
+      setMicState(MicrophoneState.Error)
+    }
+  }
+
+  // Remove interim_results from Deepgram options
+const connectToDeepgram = async () => {
+    try {
+      const key = await getApiKey()
+      const deepgram = createClient(key)
+      const conn = deepgram.listen.live({
+        model: "nova-3",
+        smart_format: true,
+        filler_words: false,
+        utterance_end_ms: 1000,
+        interim_results:true
+      })
   
+      conn.addListener(LiveTranscriptionEvents.Open, () => {
+        if (microphone) {
+          microphone.start(500)
+          setMicState(MicrophoneState.Recording)
+        }
+      })
+  
+      conn.addListener(LiveTranscriptionEvents.Close, () => {
+        stopRecording()
+      })
+  
+      conn.addListener(LiveTranscriptionEvents.Transcript, (data) => {
+        const { is_final } = data;
+        const transcript = data.channel.alternatives[0].transcript;
+        
+        // Only process final transcripts
+        if (is_final && transcript !== "") {
+          setInput((prev) => {
+            // Remove any trailing spaces before adding the new transcript
+            const trimmedPrev = prev.trimEnd();
+            return trimmedPrev + (trimmedPrev ? " " : "") + transcript;
+          });
+        }
+      });
+  
+      setConnection(conn)
+    } catch (err) {
+      console.error("Deepgram connection error:", err)
+      setMicState(MicrophoneState.Error)
+    }
+  }
+
+  const startRecording = async () => {
+    try {
+      if (!microphone) {
+        await setupMicrophone()
+      }
+      await connectToDeepgram()
+    } catch (err) {
+      console.error("Start recording error:", err)
+      setMicState(MicrophoneState.Error)
+    }
+  }
+
+  const stopRecording = () => {
+    if (microphone && microphone.state !== "inactive") {
+      microphone.stop()
+    }
+
+    if (mediaStream.current) {
+      mediaStream.current.getTracks().forEach(track => track.stop())
+    }
+
+    if (connection) {
+      connection.requestClose()
+    }
+
+    setConnection(null)
+    setMicrophone(null)
+    setMicState(MicrophoneState.Ready)
+  }
+
+  useEffect(() => {
+    setupMicrophone()
+    return () => {
+
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!microphone || !connection) return
+
+    const onData = (e: BlobEvent) => {
+      if (e.data.size > 0 && connection) {
+        connection.send(e.data)
+      }
+    }
+
+    microphone.addEventListener("dataavailable", onData)
+    return () => {
+      microphone.removeEventListener("dataavailable", onData)
+    }
+  }, [microphone, connection])
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
@@ -42,7 +179,6 @@ export default function ChatPage() {
       experimental_attachments: files,
     })
     
-    // Clear files after submission
     setFiles(undefined)
     setUploadType(null)
     if (fileInputRef.current) {
@@ -205,6 +341,19 @@ export default function ChatPage() {
                 }
               }}
             />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              disabled={micState === MicrophoneState.Error}
+              onClick={micState === MicrophoneState.Recording ? stopRecording : startRecording}
+              className={cn(
+                "transition-colors",
+                micState === MicrophoneState.Recording && "bg-red-500 text-white border-red-500 hover:bg-red-600 hover:text-white"
+              )}
+            >
+              <Mic className="h-4 w-4" />
+            </Button>
             <Button type="submit" disabled={isLoading || (!input.trim() && (!files || files.length === 0))}>
               <Send className={cn(
                 "h-4 w-4",
